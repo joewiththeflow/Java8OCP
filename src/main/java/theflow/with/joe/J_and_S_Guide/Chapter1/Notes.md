@@ -180,3 +180,112 @@ public enum Season3 {
 Note we still need the semi-colon after FALL as we have more than just values.
 
 See [Card](Card.java) for more complex enum example.
+
+
+## Nested Classes
+
+- A `nested class` is a class defined within another class
+- A nested class that is not static is called an `inner class`
+- There are 4 types:
+  - A `member inner class` is a class defined at the same level as instance variables. It is not static. Often referred to as just an `inner class`
+  - A `local inner class` is defined within a method
+  - An `anonymous inner class` is a speical case of a local inner class that does not have a name
+  - A `static nested class` is a `static` class that is defined at the same level as static variables
+- There are several benefits:
+  - Encapsulate helper classes inside the containing class
+  - Easy to create a class that will only be used in one place
+  - Can make the code easier to read, although can also make code harder to read when used improperly
+
+## Member Inner Class
+
+Defined at the member level of a class.
+
+Have the following properties:
+- Can be declared public, private, protected or use default access
+- Can extend any class and implement interfaces
+- Can be abstract or final
+- Cannot declare static fields or methods
+- Can access members of the outer class including `private` members
+
+An example can be found here: [Outer.java](InnerClass/Outer.java)
+
+Within the Outer class, an instance of Inner can be created easily:
+```
+  public void callInner() {
+      Inner inner = new Inner();
+```
+
+However, from outside the class, or from within a static context in the class e.g. the main() method, you need to make use of the `new` method:
+
+```
+  Outer outer2 = new Outer();
+  // Very important syntax, need an instance of Outer to create inner as we are in a static context here
+  Inner inner2 = outer2.new Inner();
+  inner2.go();
+
+  // Or
+  Inner inner3 = new Outer().new Inner();
+  inner3.go();
+```
+
+Compiling of `Outer.java` above actually creates 2 class files:
+- Outer.class
+- Outer$Inner.class
+
+A more complex example can be found here: [A.java](InnerClass/A.java). This example shows how multiple nested classes can be used and how the same variable can be used in each:
+```
+public class A {
+    private int x = 10;
+    class B {
+        private int x = 20;
+        class C {
+            private int x = 30;
+            public void allTheX() {
+                System.out.println(x);          // 30
+                System.out.println(this.x);     // 30
+                System.out.println(B.this.x);   // 20
+                System.out.println(A.this.x);   // 10
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        A a = new A();
+        B b = a.new B();      // You could say B rather than A.B
+        A.B.C c = b.new C();    // You could say B.C rather than A.B.C, but not just C
+        c.allTheX();
+    }
+}
+```
+Note the special syntax to access the x variable in the outer class e.g. `B.this.x` and `A.this.x`.
+
+### Private Interface
+
+The following looks weird but is legal:
+```
+public class CaseOfThePrivateInterface {
+    private interface Secret {
+        public void shh();
+    }
+    class DontTell implements Secret {
+        public void shh() { }
+    }
+
+    // Note that you can access Secret interface definition from within static context
+    public static void main(String[] args) {
+        Secret anonymousSecret = new Secret() {
+            @Override
+            public void shh() {
+                System.out.println("hello");    // hello
+            }
+        };
+        anonymousSecret.shh();
+    }
+}
+
+//class MadeUp implements Secret {} // can't access private interface Secret definition from outside the class
+```
+The rule that all methods in an interface must be `public` still applies. A class that implements the interface must define that method as `public`.
+
+The interface itself does not have to be `public`. Just like any inner class, an inner interface can be `private`. This means the interface can only be referred to within the current outer class.
+
