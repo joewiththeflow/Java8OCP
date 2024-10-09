@@ -178,3 +178,5 @@ public enum Season3 {
 }
 ```
 Note we still need the semi-colon after FALL as we have more than just values.
+
+See [Card](Card.java) for more complex enum example.
