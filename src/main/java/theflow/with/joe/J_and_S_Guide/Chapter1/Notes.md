@@ -344,3 +344,146 @@ public void isItFinal() {
 - `three` is effectively final as it is only assigned once
 - `four` is not effectively final even though the second assignment happens after the inner class
 
+## Anonymous Inner Class
+
+- A `local inner class` that doesn't have a name
+- Declared and instantiated in one statement using `new` keyword
+- Must extend an existing class or implement an existing interface
+- Useful for a short implementation that will not be used anywhere else
+
+Following is an example of an anonymous inner class: [AnonInner](AnonymousInnerClass/AnonInner.java)
+```
+public class AnonInner {
+  abstract class SaleTodayOnly {
+    abstract int dollarsOff();
+  }
+  public int admission(int basePrice) {
+    SaleTodayOnly sale = new SaleTodayOnly() {
+      int dollarsOff() { return 3; }
+    };                                    // Semicolon is extremely important as it is a local variable
+    return basePrice - sale.dollarsOff();
+  }
+  public static void main(String[] args) {
+    System.out.println(new AnonInner().admission(10));
+  }
+ }
+```
+The value 7 is printed to the screen.
+
+Pay attention to the semicolon required at the end of the anonymous class definition. `sale` is a local variable so needs that semi-colon to compile.
+
+We can convert the example to use an anonymous interface instead: [AnonInnerWithInterface](AnonymousInnerClass/AnonInnerWithInterface.java)
+```
+public class AnonInnerWithInterface {
+    interface SaleTodayOnly {
+        int dollarsOff();
+    }
+    public int admission(int basePrice) {
+        SaleTodayOnly sale = new SaleTodayOnly() {
+            public int dollarsOff() { return 3; }    // Note that this has to be "public" to compile
+        };
+        return basePrice - sale.dollarsOff();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new AnonInner().admission(10));
+    }
+}
+```
+Remember that to override an interface method, you must use `public`.
+
+You cannot both extend a class and implement an interface using an anonymous class.
+
+You can also define the anonymous class in a method argument: [AnonInnerMethodArg](AnonymousInnerClass/AnonInnerMethodArg.java)
+```
+public class AnonInnerMethodArg {
+    interface SaleTodayOnly {
+        int dollarsOff();
+    }
+
+    public int pay() {
+        return admission(10, new SaleTodayOnly() {
+            @Override
+            public int dollarsOff() {
+                return 3;
+            }
+        });
+    }
+
+    public int admission(int basePrice, SaleTodayOnly sale) {
+        return basePrice - sale.dollarsOff();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new AnonInner().admission(10));
+    }
+}
+```
+
+## Static Nested Classes
+
+- Not an inner class
+- It is a `static class` defined at the member level
+- Can be instantiated without an instance of the enclosing class so it can't access the instance variables, unless it creates an instance of the enclosing class e.g. new OuterClass().var
+
+Therefore it is like a regular class except for the following:
+- The nesting creates a namespace because the enclosing class name must be used to refer to it
+- It can be made `private` or use one of the other access modifiers to encapsulate it
+- The enclosing class can refer to the fields and methods of the `static` nested class
+
+Consider the following example: [Enclosing](StaticNestedClass/Enclosing.java)
+```
+public class Enclosing {
+    static class Nested {
+        private int price = 6;
+        int cost = 6;
+        static int amount = 6;
+    }
+
+    public void accessPrice() {
+        int price = new Nested().price;         // Still need an instance to access instance variable price
+        int amount = Nested.amount;             // No need for instance as amount is static in Nested
+    }
+
+    public static void main(String[] args) {
+        Nested nested = new Nested();
+        System.out.println(nested.price);       // allowed to access private instance variable od static class
+        System.out.println(Nested.amount);      // No need for instance as amount is static in Nested
+    }
+}
+
+class OtherClass {
+    public static void main(String[] args) {
+        Enclosing.Nested nested = new Enclosing.Nested();
+//        System.out.println(nested.price);     // can't access as it is private
+        System.out.println(nested.cost);        // 6
+        System.out.println(Enclosing.Nested.amount);    // amount is static so no need for instance of the static class
+    }
+}
+```
+
+- When inside the class, you don't need an instance of the `Enclosing` class because it is `static`.
+- Instance variables inside the static class can only be accessed if you create an instance of the static nested class
+- Static variables inside the static class can be accessed without creating an instance of it
+- When outside the class, you need to reference the enclosing class name
+- When outside the class, any private variables in the static nested class cannot be accessed
+
+Importing a `static` nested class is interesting. You can import using a regular import as in the following example: [BirdWatcher](StaticNestedClass/watcher/BirdWatcher.java)
+```
+package theflow.with.joe.J_and_S_Guide.Chapter1.StaticNestedClass.bird;
+
+public class Toucan {
+    public static class Beak {}
+}
+
+package theflow.with.joe.J_and_S_Guide.Chapter1.StaticNestedClass.watcher;
+
+import theflow.with.joe.J_and_S_Guide.Chapter1.StaticNestedClass.bird.Toucan.Beak;  // regular import ok
+//import static theflow.with.joe.J_and_S_Guide.Chapter1.StaticNestedClass.bird.Toucan.Beak; 
+
+public class BirdWatcher {
+    Beak beak;
+}
+```
+
+Since it is `static`, you can import using a `static` import as well.
