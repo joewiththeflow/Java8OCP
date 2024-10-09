@@ -1,91 +1,91 @@
 ## Virtual method invocation
 
-    - will use the subclass method if there is an overridden method in subclass
-    - only applies to methods, not to variables
+- will use the subclass method if there is an overridden method in subclass
+- only applies to methods, not to variables
 
 ## instanceof
 
-    - null (or pointer to null) instanceof Object : always false
-    - if the compiler knows there is no way for a reference to be an instanceof, it will throw a compiler error. However, the same is not true of interfaces.
+- null (or pointer to null) instanceof Object : always false
+- if the compiler knows there is no way for a reference to be an instanceof, it will throw a compiler error. However, the same is not true of interfaces.
 
 
 ## public boolean equals(Object obj)
 
-    - always an Object as the parameter
-    - StringBuilder does not override the default Object equals() method, but String does
-    - x.equals(null) : returns false, not a NullPointerException
-    - null.equals(null) : compiler error as equals is not a method on null
+- always an Object as the parameter
+- StringBuilder does not override the default Object equals() method, but String does
+- x.equals(null) : returns false, not a NullPointerException
+- null.equals(null) : compiler error as equals is not a method on null
 
 ## public int hashCode()
 
-    - expected to override this method if you override equals()
-    - used when storing an object as a key in a map
-    - you could the hashCode() method of an existing class e.g. a String:
-        ```
-        String rank;
-        ......
-        public int hashCode() {
-            return rank.hashCode();
-        ```
-    - if you need to define your own
-        - could just use a primitive or divide it to get a smaller int
-        - don't need to use all instance varaibles
-        - common not to include boolean and char variables in hash code
-    
-    - hashCode() must return the same result consistently so you shouldn't use variables that may change
-    - if equals() returns true, hashCode for each object MUST return the same value
-        - within the same point, there's also a statement that suggests that you MUST use a subset of the variables that equals() uses to be legal
-    - if equals() returns false, hashCode may/may not be the same
-
-    - common to multiply by a prime number when combining multiple fields as it helps make hashCodes more unique which is better for distibuting, e.g.:
+- expected to override this method if you override equals()
+- used when storing an object as a key in a map
+- you could the hashCode() method of an existing class e.g. a String:
     ```
+    String rank;
+    ......
     public int hashCode() {
-        return keyFields + 7 * otherKeyField.hashCode();
-    }
+        return rank.hashCode();
     ```
+- if you need to define your own
+    - could just use a primitive or divide it to get a smaller int
+    - don't need to use all instance varaibles
+    - common not to include boolean and char variables in hash code
+    
+- hashCode() must return the same result consistently so you shouldn't use variables that may change
+- if equals() returns true, hashCode for each object MUST return the same value
+    - within the same point, there's also a statement that suggests that you MUST use a subset of the variables that equals() uses to be legal
+- if equals() returns false, hashCode may/may not be the same
+
+- common to multiply by a prime number when combining multiple fields as it helps make hashCodes more unique which is better for distibuting, e.g.:
+  ```
+  public int hashCode() {
+      return keyFields + 7 * otherKeyField.hashCode();
+  }
+  ```
 
 ## public enum \<name of enum> {}
 
 ### Basic enum usage
 
-    - An enumeration is a fixed set of constants
-    - an enum is better than this as it provides type-safe checking 
-        - unlike with numeric constants, where you could pass an invalid value and not find out until runtime, it is impossible to create an invalid enum type without introducing a compiler error
-    - behind the scenes, it is a type of class that mainly stores `static` members
-    - enum.values() : gives an array of all the values
-    - <enum constant>.name() : gives the name of the enum constant
-    - <enum constant>.ordinal () : corresponding int value in the order constants were declared
-    - For example:
-    ```
-    public enum Season {
-    WINTER, SPRING, SUMMER, FALL
-    }
+- An enumeration is a fixed set of constants
+- an enum is better than this as it provides type-safe checking 
+    - unlike with numeric constants, where you could pass an invalid value and not find out until runtime, it is impossible to create an invalid enum type without introducing a compiler error
+- behind the scenes, it is a type of class that mainly stores `static` members
+- enum.values() : gives an array of all the values
+- <enum constant>.name() : gives the name of the enum constant
+- <enum constant>.ordinal () : corresponding int value in the order constants were declared
+- For example:
+```
+public enum Season {
+WINTER, SPRING, SUMMER, FALL
+}
 
-    Season s = Season.SUMMER;
-    System.out.println(Season.SUMMER);      // SUMMER
-    System.out.println(s == Season.SUMMER); // true
+Season s = Season.SUMMER;
+System.out.println(Season.SUMMER);      // SUMMER
+System.out.println(s == Season.SUMMER); // true
 
-    for(Season season : Season.values()) {
-        System.out.println(season.name() + " " + season.ordinal());
-    }
+for(Season season : Season.values()) {
+    System.out.println(season.name() + " " + season.ordinal());
+}
 
-    // above prints:
-    WINTER 0
-    SPRING 1
-    SUMMER 2
-    FALL 3
+// above prints:
+WINTER 0
+SPRING 1
+SUMMER 2
+FALL 3
 
-    // remember an enum is a type and not an int:
-    if (Season.SUMMER == 2) {}      // DOES NOT COMPILE
+// remember an enum is a type and not an int:
+if (Season.SUMMER == 2) {}      // DOES NOT COMPILE
 
-    // you can create an enum from a String, which is helpful when working with older code:
-    Season s1 = Season.valueOf("SUMMER");   // SUMMER
-    Season s2 = Season.valueOf("summer");   // exception
-    // Exception in thread "main" java.lang.IllegalArgumentException: No enum constant enums.Season.summer
+// you can create an enum from a String, which is helpful when working with older code:
+Season s1 = Season.valueOf("SUMMER");   // SUMMER
+Season s2 = Season.valueOf("summer");   // exception
+// Exception in thread "main" java.lang.IllegalArgumentException: No enum constant enums.Season.summer
 
-    // You CANNOT EXTEND an enum:
-    public enum ExtendedSeason extends Season { } // DOES NOT COMPILE
-    ```
+// You CANNOT EXTEND an enum:
+public enum ExtendedSeason extends Season { } // DOES NOT COMPILE
+```
 
 ### enums in Switch statements
 
