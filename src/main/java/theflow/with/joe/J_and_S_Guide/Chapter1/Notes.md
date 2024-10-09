@@ -261,7 +261,7 @@ Note the special syntax to access the x variable in the outer class e.g. `B.this
 
 ### Private Interface
 
-The following looks weird but is legal:
+The following looks weird but is legal: [CaseOfThePrivateInterface](InnerClass/CaseOfThePrivateInterface.java)
 ```
 public class CaseOfThePrivateInterface {
     private interface Secret {
@@ -288,4 +288,59 @@ public class CaseOfThePrivateInterface {
 The rule that all methods in an interface must be `public` still applies. A class that implements the interface must define that method as `public`.
 
 The interface itself does not have to be `public`. Just like any inner class, an inner interface can be `private`. This means the interface can only be referred to within the current outer class.
+
+## Local Inner Class
+
+A `local inner class` is a nested class within a method.
+- does not exist until the method is invoked
+- out of scope when the method returns
+- can only create instances within the method and those instances can be returned by the method
+
+Local inner classes have the following properties:
+- No access specifier
+- Cannot be declared `static` and cannot have `static` fields or methods
+- They have access to all fields and methods of the enclosing class
+- They do not have access to local variables of a method unless those variables are `final` or "effectively final"
+
+An example can be found here which multiplies two numbers: [Outer.java](LocalInnerClass/Outer.java)
+```
+public class Outer {
+    private int length = 5;
+    public void calculate() {
+        final int width = 20;       // marked as final but would work if final wasn't present as variable is "effectively final"
+        class Inner {
+            public void multiply() {
+                System.out.println(length * width);
+            }
+        }
+        Inner inner = new Inner();
+        inner.multiply();
+    }
+
+    public static void main(String[] args) {
+        Outer outer = new Outer();
+        outer.calculate();
+    }
+}
+```
+Note that the local variable `width` is marked `final`. As of Java 8, as long as the word final could be added, i.e. the variable is not changed within the method, then the code will compile.
+
+Which of the following are "effectively final"?:
+```
+public void isItFinal() {
+  int one = 20;
+  int two = one;
+  two++;
+  int three;
+  if (one == 4) three = 3;
+  else three = 4;
+  class Inner {}
+  four = 5
+}
+```
+
+- `one` is effectively final
+- `two` is not effectively final as it is changed
+- `three` is effectively final as it is only assigned once
+- `four` is not effectively final even though the second assignment happens after the inner class
 
